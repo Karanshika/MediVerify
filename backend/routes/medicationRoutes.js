@@ -4,6 +4,9 @@ const Medication = require('../models/Medication');
 const auth = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
 
 // Configure storage for medication images
 const storage = multer.diskStorage({
@@ -37,12 +40,21 @@ router.post('/verify', auth, upload.single('image'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: 'No image provided' });
     }
-    
-    // Mock AI verification process
-    // In a real implementation, this would call an AI service
+
+    // Call AI service for verification
+    const formData = new FormData();
+    formData.append('image', fs.createReadStream(req.file.path));
+
+    const aiResponse = await axios.post('http://localhost:5001/api/analyze-medicine', formData, {
+      headers: {
+        ...formData.getHeaders(),
+      },
+      timeout: 30000, // 30 second timeout
+    });
+
     const verificationResult = {
-      isAuthentic: Math.random() > 0.2, // 80% chance of being authentic for demo
-      confidence: Math.floor(Math.random() * 30) + 70, // 70-99% confidence
+      isAuthentic: aiResponse.data.isAuthentic,
+      confidence: aiResponse.data.confidence,
       timestamp: new Date(),
       imageUrl: `/uploads/${req.file.filename}`
     };
@@ -55,11 +67,11 @@ router.post('/verify', auth, upload.single('image'), async (req, res) => {
     });
 
     await medication.save();
-    
+
     res.status(201).json(verificationResult);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Verification error:', error.response?.data || error.message);
+    res.status(500).json({ message: 'Server error during verification' });
   }
 });
 
