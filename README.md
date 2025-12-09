@@ -90,10 +90,9 @@ npm start
 
 ## 🤝 Contributors
 
-- Subhodeep Roy - `Project Lead, Block-chain developer`
-- Aditya Kumar Jha - `Frontend developer`
-- Aranya Sen - `Backend developer`
-- Bikram Mondal – `Frontend developer`
+- Anshika Choudhary - `Project Lead, Block-chain developer`
+- Rajnikant - `Frontend developer`
+- Bikram Mondal - 'Backend developer`
 
 ## 📜 License
 This project is licensed under the `Apache-2.0 license`.
